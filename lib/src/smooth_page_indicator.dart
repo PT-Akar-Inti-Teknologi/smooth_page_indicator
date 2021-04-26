@@ -25,6 +25,9 @@ class SmoothPageIndicator extends AnimatedWidget {
   /// The number of pages
   final int count;
 
+  /// Page is endless
+  final bool endless;
+
   /// If [textDirection] is [TextDirection.rtl], page direction will be flipped
   final TextDirection textDirection;
 
@@ -35,6 +38,7 @@ class SmoothPageIndicator extends AnimatedWidget {
     Key key,
     @required this.controller,
     @required this.count,
+    this.endless = false,
     this.axisDirection = Axis.horizontal,
     this.textDirection,
     this.onDotClicked,
@@ -54,6 +58,13 @@ class SmoothPageIndicator extends AnimatedWidget {
   }
 
   double get _offset {
+    if (endless) {
+      return _offsetLegacy % count;
+    }
+    return _offsetLegacy;
+  }
+
+  double get _offsetLegacy {
     try {
       return controller.page ?? controller.initialPage.toDouble();
     } catch (_) {
@@ -107,7 +118,11 @@ class SmoothIndicator extends StatelessWidget {
         (textDirection ?? Directionality.of(context)) == TextDirection.rtl;
 
     return RotatedBox(
-      quarterTurns: axisDirection == Axis.vertical ? 1 : isRTL ? 2 : 0,
+      quarterTurns: axisDirection == Axis.vertical
+          ? 1
+          : isRTL
+              ? 2
+              : 0,
       child: GestureDetector(
         onTapUp: _onTap,
         child: CustomPaint(
